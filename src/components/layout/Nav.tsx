@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X, ArrowUpRight } from "lucide-react";
 import { site } from "@/config/site";
 import DevLogo from "@/components/layout/DevLogo";
@@ -9,12 +9,16 @@ export default function Nav() {
   const [active, setActive] = useState("home");
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const progress = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
+      const max = document.documentElement.scrollHeight - innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
+      if (progress.current) progress.current.style.transform = `scaleX(${p})`;
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -41,10 +45,17 @@ export default function Nav() {
       {/* Floating Glassmorphic Pill Container */}
       <nav
         aria-label="Primary"
-        className={`flex w-full max-w-5xl items-center justify-between rounded-full border border-white/10 bg-[#070d1a]/75 px-4 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65)] backdrop-blur-xl transition-all duration-300 sm:px-6 sm:py-3 ${
+        className={`relative flex w-full max-w-5xl items-center justify-between rounded-full border border-white/10 bg-[#070d1a]/75 px-4 py-2.5 shadow-[0_12px_40px_rgba(0,0,0,0.65)] backdrop-blur-xl transition-all duration-300 sm:px-6 sm:py-3 ${
           scrolled ? "border-[#00D9FF]/20 shadow-[0_16px_50px_#00000099]" : ""
         }`}
       >
+        {/* sheen sweep on the glass pill */}
+        <span aria-hidden className="nav-sheen pointer-events-none absolute inset-0 rounded-full" />
+
+        {/* scroll progress hair-line */}
+        <div aria-hidden className="absolute -bottom-px left-6 right-6 h-px overflow-hidden rounded-full opacity-90">
+          <div ref={progress} className="h-full w-full origin-left scale-x-0 bg-gradient-to-r from-[#00D9FF] via-[#3B82F6] to-[#8B5CF6] shadow-[0_0_10px_#00D9FF99]" />
+        </div>
         {/* Left: Developer Brand Logo */}
         <DevLogo />
 

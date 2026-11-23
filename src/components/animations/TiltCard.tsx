@@ -11,17 +11,21 @@ export default function TiltCard({
   reveal?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const raf = useRef(0);
 
   const move = (e: React.MouseEvent) => {
     const el = ref.current;
     if (!el) return;
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
-
-    // Only update subtle holographic light highlight position - NO card movement/shifting
-    el.style.setProperty("--mx", `${x * 100}%`);
-    el.style.setProperty("--my", `${y * 100}%`);
+    const x = e.clientX;
+    const y = e.clientY;
+    if (raf.current) return; // coalesce mousemove bursts into one rAF update
+    raf.current = requestAnimationFrame(() => {
+      raf.current = 0;
+      const r = el.getBoundingClientRect();
+      // Only update subtle holographic light highlight position - NO card movement/shifting
+      el.style.setProperty("--mx", `${((x - r.left) / r.width) * 100}%`);
+      el.style.setProperty("--my", `${((y - r.top) / r.height) * 100}%`);
+    });
   };
 
   return (

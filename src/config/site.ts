@@ -1,5 +1,8 @@
 export const site = {
   name: "Nattapon Phliwan", brand: "NCode", github: "Nattapon2005",
+  // โดเมนหลักของเว็บ — ใช้เป็น metadataBase / canonical / sitemap
+  // แก้จุดเดียวตรงนี้ครั้งเดียว แล้ว og:image / canonical / sitemap เปลี่ยนตามทั้งหมด
+  url: "https://ncode.vercel.app",
   githubUrl: "https://github.com/Nattapon2005",
   email: "nattaponphli@gmail.com",
   socials: [{ label: "GitHub", href: "https://github.com/Nattapon2005" }, { label: "Instagram", href: "https://www.instagram.com/nattapon_phliwan/" }],

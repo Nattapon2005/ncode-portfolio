@@ -1,12 +1,51 @@
 "use client";
 import { useState, useEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { bentoSkills, workstationApps, type SkillCategory } from "@/data/projects";
 import TiltCard from "@/components/animations/TiltCard";
+import RevealHeading from "@/components/animations/RevealHeading";
+import MatrixRain from "@/components/animations/MatrixRain";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function SkillsBento() {
   const [activeTab, setActiveTab] = useState<SkillCategory>("all");
   const [hoveredApp, setHoveredApp] = useState<string | null>(null);
   const [bangkokTime, setBangkokTime] = useState<string>("");
+
+  /* bento cards pop-in + pills cascade when entering view */
+  useEffect(() => {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>("[data-bento]").forEach((el, i) => {
+        gsap.fromTo(
+          el,
+          { opacity: 0, y: 60, scale: 0.94 },
+          {
+            opacity: 1, y: 0, scale: 1,
+            ease: "power2.out",
+            duration: 0.9,
+            delay: (i % 3) * 0.08,
+            scrollTrigger: { trigger: el, start: "top 88%", toggleActions: "play none none reverse" },
+          }
+        );
+      });
+      gsap.fromTo(
+        "[data-tile]",
+        { opacity: 0, y: 14, scale: 0.9 },
+        {
+          opacity: 1, y: 0, scale: 1,
+          ease: "back.out(1.8)",
+          duration: 0.45,
+          stagger: { each: 0.035, from: "random" },
+          scrollTrigger: { trigger: "[data-tile]", start: "top 90%", toggleActions: "play none none reverse" },
+        }
+      );
+    }, "#skills");
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -36,18 +75,28 @@ export default function SkillsBento() {
         <p className="text-xs font-semibold uppercase tracking-widest text-[#00D9FF]">
           Core Capabilities & Stack
         </p>
-        <h2 data-reveal className="mt-2 text-3xl font-extrabold tracking-tight sm:text-5xl md:text-6xl">
-          THE STACK BEHIND EVERYTHING I SHIP
-        </h2>
+        <RevealHeading
+          text="THE STACK BEHIND EVERYTHING I SHIP"
+          className="mt-2"
+        />
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
           From typed frontend components to resilient backend APIs and automated workflows.
         </p>
       </div>
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="relative overflow-hidden">
+        {/* cyber rain flooding the gaps between cards */}
+        <MatrixRain className="opacity-40" />
+        {/* travelling scan light across the whole grid */}
+        <span
+          aria-hidden
+          className="bento-scan pointer-events-none absolute inset-x-0 z-20 h-16 opacity-70"
+          style={{ background: "linear-gradient(to bottom, transparent, #00D9FF14 45%, #00D9FF1f 55%, transparent)" }}
+        />
+        <div className="relative z-10 grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* CARD 1: HOW I WORK (Left top, 5 cols) */}
-        <div className="lg:col-span-5">
+        <div data-bento className="lg:col-span-5">
           <TiltCard className="h-full">
             <div className="flex h-full flex-col justify-between p-7">
               <div>
@@ -121,7 +170,7 @@ export default function SkillsBento() {
         </div>
 
         {/* CARD 2: DAILY DRIVERS (The Stack Pill Grid, 7 cols) */}
-        <div className="lg:col-span-7">
+        <div data-bento className="lg:col-span-7">
           <TiltCard className="h-full">
             <div className="flex h-full flex-col justify-between p-7">
               <div>
@@ -138,9 +187,9 @@ export default function SkillsBento() {
                 {filteredSkills.map((skill) => (
                   <div
                     key={skill.name}
-                    className="group relative flex items-center gap-2 rounded-lg border border-white/10 bg-[#0d1424]/80 px-3 py-1.5 text-xs font-medium text-slate-200 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:border-[#00D9FF]/60 hover:bg-[#121c33] hover:text-white hover:shadow-[0_0_15px_#00D9FF22]"
+                    className="group relative flex items-center gap-2 rounded-lg border border-white/10 bg-[#0d1424]/80 px-3 py-1.5 text-xs font-medium text-slate-200 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#00D9FF]/60 hover:bg-[#121c33] hover:text-white hover:shadow-[0_0_15px_#00D9FF22]"
+                    data-tile
                   >
-                    {/* Icon Image */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={skill.icon}
@@ -148,7 +197,7 @@ export default function SkillsBento() {
                       width={16}
                       height={16}
                       loading="lazy"
-                      className={`h-4 w-4 object-contain transition-transform duration-200 group-hover:scale-115 ${
+                      className={`h-4 w-4 object-contain transition-transform duration-200 group-hover:scale-110 ${
                         skill.invert ? "invert" : ""
                       }`}
                     />
@@ -180,7 +229,7 @@ export default function SkillsBento() {
         </div>
 
         {/* CARD 3: WHAT YOU GET (Conveyor pipeline, 4 cols) */}
-        <div className="lg:col-span-4">
+        <div data-bento className="lg:col-span-4">
           <TiltCard className="h-full">
             <div className="flex h-full flex-col justify-between p-6">
               <div>
@@ -225,7 +274,7 @@ export default function SkillsBento() {
         </div>
 
         {/* CARD 4: REMOTE, WORLDWIDE (Bangkok Time, 4 cols) */}
-        <div className="lg:col-span-4">
+        <div data-bento className="lg:col-span-4">
           <TiltCard className="h-full">
             <div className="flex h-full flex-col justify-between p-6">
               <div>
@@ -274,7 +323,7 @@ export default function SkillsBento() {
         </div>
 
         {/* CARD 5: WORKSTATION DOCK (Interactive Apps, 4 cols) */}
-        <div className="lg:col-span-4">
+        <div data-bento className="lg:col-span-4">
           <TiltCard className="h-full">
             <div className="flex h-full flex-col justify-between p-6">
               <div>
@@ -328,6 +377,7 @@ export default function SkillsBento() {
               </div>
             </div>
           </TiltCard>
+        </div>
         </div>
       </div>
     </section>

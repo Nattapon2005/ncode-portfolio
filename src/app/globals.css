@@ -2,7 +2,7 @@
 :root { --bg:#05070D; --glow:.6; }
 html { scroll-behavior: auto; }
 body { background: var(--bg); color:#F5F9FF; font-family: system-ui, "Segoe UI", sans-serif; overflow-x:hidden; }
-.holo-card { position:relative; border-radius:1rem; background:linear-gradient(145deg,#111A2Bcc,#0B1220cc); border:1px solid #00D9FF22; backdrop-filter: blur(10px); transition: box-shadow .3s, border-color .3s; }
+.holo-card { position:relative; border-radius:1rem; background:linear-gradient(145deg,#111A2Bf0,#0B1220e8); border:1px solid #00D9FF22; transition: box-shadow .3s, border-color .3s; }
 .holo-card:hover { border-color:#00D9FF88; box-shadow:0 0 calc(30px*var(--glow)) #00D9FF33; }
 .holo-card::after { content:""; position:absolute; inset:0; border-radius:inherit; pointer-events:none; opacity:0; transition:opacity .3s; background:radial-gradient(250px circle at var(--mx,50%) var(--my,50%), #00D9FF22, transparent); }
 .holo-card:hover::after { opacity:1; }
@@ -24,3 +24,92 @@ body { background: var(--bg); color:#F5F9FF; font-family: system-ui, "Segoe UI",
 @media (prefers-reduced-motion: reduce) { .float-soft,.twinkle,.skill-tile { animation:none; } }
 @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
 .animate-fade-in { animation: fadeIn .2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+/* navbar: light sweep across the glass pill */
+@keyframes navSheen { from { transform: translateX(-120%);} to { transform: translateX(220%);} }
+.nav-sheen { background:linear-gradient(100deg, transparent 30%, #ffffff10 50%, transparent 70%); transform:translateX(-120%); }
+.nav-sheen { animation: navSheen 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .nav-sheen { animation:none; opacity:0; } }
+
+/* bento scan sweep — compositor transform, no layout animation */
+.bento-scan { top:-4rem; animation: scanY 6.5s linear infinite; }
+@keyframes scanY { from { transform: translateY(0); } to { transform: translateY(var(--scan-h, 900px)); } }
+@media (max-width: 1023px) { .bento-scan { --scan-h: 2400px; } }
+@media (prefers-reduced-motion: reduce) { .bento-scan { display:none; } }
+
+/* ── terminal typewriter (syntax tokens + caret) ─────────────────────── */
+.tk-key { color:#7DD3FC; font-weight:600; }   /* const / let */
+.tk-str { color:#6EE7B9; }                    /* strings */
+.tk-prop { color:#C4B5FD; }                   /* object keys */
+.tk-punct { color:#64748B; }                  /* { } : ; [ ] */
+.code-caret {
+  display:inline-block; width:.55em; height:1.02em; margin-left:2px;
+  vertical-align:text-bottom; background:#00D9FF; box-shadow:0 0 8px #00D9FFAA;
+  animation: caretBlink 1s steps(1) infinite;
+}
+@keyframes caretBlink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
+
+/* ── CRT terminal dressing ───────────────────────────────────────────── */
+.crt-shell {
+  position:relative; overflow:hidden;
+  background-image: radial-gradient(#00D9FF14 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.crt-shell::after {  /* soft glow pooling at the bottom, breathing */
+  content:""; position:absolute; inset:auto -20% -30% -20%; height:55%;
+  background:radial-gradient(60% 90% at 50% 100%, rgba(0,217,255,.12), transparent 70%);
+  animation: crtPool 5.5s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes crtPool { from { opacity:.5; transform:translateY(6%); } to { opacity:1; transform:translateY(0); } }
+.crt-scan {
+  position:absolute; left:0; right:0; top:-25%; height:18%; z-index:5;
+  pointer-events:none; opacity:.55;
+  background:linear-gradient(to bottom, transparent, rgba(0,217,255,.10) 55%, rgba(0,217,255,.25) 96%, transparent);
+  animation: crtSweep 7s linear infinite;
+}
+@keyframes crtSweep { from { transform:translateY(0); } to { transform:translateY(520%); } }
+.crt-lines {
+  position:absolute; inset:0; z-index:6; pointer-events:none;
+  background:repeating-linear-gradient(to bottom, rgba(255,255,255,.025) 0 1px, transparent 1px 4px);
+  animation: crtFlicker 5.5s steps(1) infinite;
+}
+@keyframes crtFlicker { 0%,92%,96.4%,100% { opacity:1; } 93%,96% { opacity:.72; } }
+
+/* ── shimmering role badge (typing text with a light sweep) ──────────── */
+.shimmer-text {
+  background:linear-gradient(100deg, #BAE6FD 35%, #ffffff 45%, #7DD3FC 52%, #BAE6FD 62%);
+  background-size:220% 100%;
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation: shimmer 5s linear 1.8s infinite;
+}
+@keyframes shimmer { from { background-position:130% 0; } to { background-position:-110% 0; } }
+
+/* ── deploy log streamer ─────────────────────────────────────────────── */
+.log-line { animation: logIn .28s cubic-bezier(.2,.7,.3,1) both; }
+@keyframes logIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .code-caret, .crt-scan, .crt-lines, .crt-shell::after, .shimmer-text, .log-line { animation:none; }
+  .code-caret { opacity:.8; }
+}
+
+/* ── cinematic scrub heading ─────────────────────────────────────────── */
+.cine-ch { display:inline-block; will-change:transform,opacity; }
+@media (prefers-reduced-motion: reduce) { .cine-ch { will-change:auto; } }
+
+/* ── light reveal heading ────────────────────────────────────────────── */
+.reveal-ch { display:inline-block; }
+.reveal-heading:hover { text-shadow:-2px 0 rgba(0,217,255,.55), 2px 0 rgba(255,46,136,.5); }
+.rgb-line {
+  display:block; height:2px; max-width:520px; margin-top:.9rem;
+  background:linear-gradient(90deg, #00D9FF, rgba(0,217,255,.25) 70%, transparent);
+  box-shadow:0 0 12px #00D9FF55;
+  animation: linePulse 3.2s ease-in-out 1.6s infinite;
+}
+@keyframes linePulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+@media (prefers-reduced-motion: reduce) {
+  .rgb-line { animation:none; }
+}
+
+/* 3d orbit helpers */
+.backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
