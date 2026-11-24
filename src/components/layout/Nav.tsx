@@ -41,7 +41,7 @@ export default function Nav() {
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-4 sm:pt-6">
+    <header className="fixed inset-x-0 top-0 z-[90] flex justify-center px-4 pt-4 sm:pt-6">
       {/* Floating Glassmorphic Pill Container */}
       <nav
         aria-label="Primary"

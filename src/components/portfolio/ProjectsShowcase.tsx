@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
+  BookOpen,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -11,13 +12,13 @@ import {
   ExternalLink,
   Grid2X2,
   Lock,
-  Orbit,
   Pause,
   Play,
-  Terminal,
+  Sparkles,
 } from "lucide-react";
 import Github from "@/components/layout/GithubIcon";
 import RevealHeading from "@/components/animations/RevealHeading";
+import ParticleMorphCanvas, { ScrambleText } from "@/components/animations/ParticleMorphCanvas";
 import { site } from "@/config/site";
 import type { Project, ProjectCategory } from "@/data/projects";
 import ProjectViewport from "@/components/portfolio/ProjectVisuals";
@@ -25,7 +26,7 @@ import HoloPreviewModal from "@/components/portfolio/HoloPreviewModal";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type ViewMode = "bento" | "orbital";
+type ViewMode = "vortex" | "folio" | "bento";
 
 const CATEGORIES: { id: ProjectCategory; label: string }[] = [
   { id: "all", label: "ALL SYSTEMS" },
@@ -34,15 +35,21 @@ const CATEGORIES: { id: ProjectCategory; label: string }[] = [
   { id: "frontend", label: "INTERACTIVE UI" },
 ];
 
+const SCULPTURE_LABELS: Record<Project["visual"], string> = {
+  globe: "ORBITAL_EARTH_MESH",
+  audio: "QUANTUM_SONIC_TORUS",
+  techgear: "CYBER_HELIX_CORE",
+  planto: "FIBONACCI_BIO_BLOOM",
+  outdoors: "INFINITY_PORTAL_LOOP",
+};
+
 function CyberProjectCard({
   project,
   index,
-  compact = false,
   onPreview,
 }: {
   project: Project;
   index: number;
-  compact?: boolean;
   onPreview: (p: Project) => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -74,7 +81,7 @@ function CyberProjectCard({
       onMouseMove={handleMouseMove}
       className="cyber-project-card group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl p-5 sm:p-6"
     >
-      {/* Animated Cyber Corner Lock-On Reticles */}
+      {/* Cyber Corner Reticles */}
       <span
         aria-hidden
         className="pointer-events-none absolute left-2.5 top-2.5 h-3 w-3 border-l-2 border-t-2 border-[#00D9FF]/30 transition-all duration-300 group-hover:left-2 group-hover:top-2 group-hover:border-[#00D9FF]"
@@ -92,14 +99,7 @@ function CyberProjectCard({
         className="pointer-events-none absolute bottom-2.5 right-2.5 h-3 w-3 border-b-2 border-r-2 border-[#00D9FF]/30 transition-all duration-300 group-hover:bottom-2 group-hover:right-2 group-hover:border-[#00D9FF]"
       />
 
-      {/* Top Glowing Accent Hairline */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-[#00D9FF]/70 to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-100"
-      />
-
       <div>
-        {/* Telemetry Top Row */}
         <div className="mb-3.5 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] text-[#00D9FF]">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#00D9FF] shadow-[0_0_8px_#00D9FF]" />
@@ -118,10 +118,8 @@ function CyberProjectCard({
           </span>
         </div>
 
-        {/* Interactive Holographic Browser Viewport */}
-        <ProjectViewport project={project} compact={compact} onPreview={onPreview} />
+        <ProjectViewport project={project} onPreview={onPreview} />
 
-        {/* Title & Subtitle */}
         <div className="mt-4 flex items-start justify-between gap-3">
           <div>
             <h3 className="font-mono text-xl font-bold tracking-tight text-white transition-colors group-hover:text-[#00D9FF] sm:text-2xl">
@@ -134,36 +132,27 @@ function CyberProjectCard({
           </span>
         </div>
 
-        {/* Description */}
-        <p
-          className={`mt-2.5 text-sm leading-relaxed text-slate-300 ${
-            compact ? "line-clamp-2" : "line-clamp-3"
-          }`}
-        >
+        <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-slate-300">
           {project.description}
         </p>
 
-        {/* Key Highlights (shown in Bento Grid cards) */}
-        {!compact && (
-          <div className="mt-3.5 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
-            {project.highlights.map((h) => (
-              <div
-                key={h}
-                className="flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.02] px-2 py-1 text-[11px] text-slate-300"
-              >
-                <Check size={11} className="shrink-0 text-[#00D9FF]" />
-                <span className="truncate">{h}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="mt-3.5 grid grid-cols-1 gap-1.5 sm:grid-cols-3">
+          {project.highlights.map((h) => (
+            <div
+              key={h}
+              className="flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.02] px-2 py-1 text-[11px] text-slate-300"
+            >
+              <Check size={11} className="shrink-0 text-[#00D9FF]" />
+              <span className="truncate">{h}</span>
+            </div>
+          ))}
+        </div>
 
-        {/* Tech Stack Matrix */}
         <div className="mt-4 flex flex-wrap gap-1.5">
           {project.tech.map((t) => (
             <span
               key={t}
-              className="rounded-md border border-[#00D9FF]/20 bg-[#00D9FF]/[0.06] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#BAE6FD] transition-colors group-hover:border-[#00D9FF]/40"
+              className="rounded-md border border-[#00D9FF]/20 bg-[#00D9FF]/[0.06] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#BAE6FD]"
             >
               {t}
             </span>
@@ -171,10 +160,9 @@ function CyberProjectCard({
         </div>
       </div>
 
-      {/* Bottom Command Action Bar */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-4">
         <div className="flex flex-wrap items-center gap-2">
-          {project.demo ? (
+          {project.demo && (
             <a
               href={project.demo}
               target="_blank"
@@ -183,14 +171,6 @@ function CyberProjectCard({
             >
               LIVE DEMO <ExternalLink size={13} />
             </a>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onPreview(project)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#00D9FF]/40 bg-[#00D9FF]/15 px-3.5 py-1.5 font-mono text-xs font-semibold text-[#00D9FF] transition-all hover:bg-[#00D9FF]/25"
-            >
-              <Terminal size={13} /> SYSTEM SPECS
-            </button>
           )}
 
           <button
@@ -199,7 +179,7 @@ function CyberProjectCard({
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-white/15 bg-white/[0.04] px-3 py-1.5 font-mono text-xs text-slate-200 transition-all hover:border-[#00D9FF]/60 hover:bg-[#00D9FF]/10 hover:text-white"
           >
             <Eye size={13} className="text-[#00D9FF]" />
-            {project.demo ? "HOLO PREVIEW" : "ARCHITECTURE"}
+            HOLO PREVIEW
           </button>
         </div>
 
@@ -208,7 +188,6 @@ function CyberProjectCard({
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 font-mono text-[11px] text-slate-400 transition-colors hover:text-[#00D9FF]"
-          title={project.isPrivateRepo ? "Private Repository · View GitHub Profile" : "View GitHub Source"}
         >
           {project.isPrivateRepo ? <Lock size={12} className="text-slate-500" /> : <Github size={13} />}
           <span>{project.isPrivateRepo ? "PRIVATE" : "SOURCE"}</span>
@@ -225,214 +204,155 @@ export default function ProjectsShowcase({
   projects: Project[];
   live: boolean;
 }) {
-  const [viewMode, setViewMode] = useState<ViewMode>("bento");
+  const [viewMode, setViewMode] = useState<ViewMode>("vortex");
   const [activeCategory, setActiveCategory] = useState<ProjectCategory>("all");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [autoCycle, setAutoCycle] = useState(true);
   const [previewProject, setPreviewProject] = useState<Project | null>(null);
 
-  // 3D Orbital interactive state
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [autoOrbit, setAutoOrbit] = useState(true);
+  // Refs for Active Theory Vortex Panel & Ultranatural 3D Book Flip
+  const vortexCardRef = useRef<HTMLDivElement>(null);
+  const vortexTiltRef = useRef<HTMLDivElement>(null);
+  const folioBookRef = useRef<HTMLDivElement>(null);
+  const flipLeafRef = useRef<HTMLDivElement>(null);
+  const flipAnimatingRef = useRef(false);
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const ringRef = useRef<HTMLDivElement>(null);
-  const ringCardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const targetRotRef = useRef(0);
-  const currentRotRef = useRef(0);
-  const draggingRef = useRef<{ active: boolean; startX: number; startRot: number }>({
-    active: false,
-    startX: 0,
-    startRot: 0,
-  });
+  const total = projects.length;
+  const activeProject = projects[activeIndex] ?? projects[0];
 
   const filteredProjects =
     activeCategory === "all"
       ? projects
       : projects.filter((p) => p.category === activeCategory);
 
-  const total = projects.length;
-  const stepDeg = total > 0 ? 360 / total : 72;
-
-  /* Refresh ScrollTrigger positions cleanly when layout height changes */
+  /* Keep ScrollTrigger synced cleanly when switching layouts */
   useEffect(() => {
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => cancelAnimationFrame(id);
   }, [viewMode, activeCategory]);
 
-  /* Space Monolith & Nebula Backdrop Canvas (auto-pauses off-screen) */
+  /* Auto-cycle timer for Vortex 3D mode (pauses when modal open or hovered/disabled) */
   useEffect(() => {
-    const cv = canvasRef.current;
-    const root = sectionRef.current;
-    if (!cv || !root) return;
-    const ctx = cv.getContext("2d");
-    if (!ctx) return;
+    if (viewMode !== "vortex" || !autoCycle || previewProject || total <= 1) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % total);
+    }, 5600);
+    return () => clearInterval(timer);
+  }, [viewMode, autoCycle, previewProject, total]);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const resize = () => {
-      cv.width = cv.clientWidth * dpr;
-      cv.height = cv.clientHeight * dpr;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const parts = Array.from({ length: 65 }, (_, idx) => ({
-      x: ((idx * 37) % 100) / 100,
-      y: ((idx * 53) % 100) / 100,
-      s: (idx % 3) * 0.6 + 0.6,
-      v: ((idx % 5) + 1) * 0.008,
-    }));
-
-    let t = 0;
-    let raf = 0;
-    let visible = true;
-
-    const draw = () => {
-      if (!visible) {
-        raf = 0;
-        return;
+  /* Animate Floating Glass Panel materialize on project change in Vortex mode */
+  useEffect(() => {
+    if (viewMode !== "vortex" || !vortexCardRef.current) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    gsap.fromTo(
+      vortexCardRef.current,
+      { opacity: 0, x: 26, rotateY: -10, scale: 0.97 },
+      {
+        opacity: 1,
+        x: 0,
+        rotateY: 0,
+        scale: 1,
+        duration: 0.55,
+        ease: "power3.out",
+        overwrite: "auto",
       }
-      t += reduce ? 0 : 0.014;
-      const w = cv.width;
-      const h = cv.height;
-      ctx.clearRect(0, 0, w, h);
-
-      const bg = ctx.createLinearGradient(0, 0, 0, h);
-      bg.addColorStop(0, "#04060c");
-      bg.addColorStop(0.5, "#070e20");
-      bg.addColorStop(1, "#04060c");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, w, h);
-
-      const cx = w * (0.5 + Math.sin(t * 0.25) * 0.02);
-      const cy = h * 0.48;
-      const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * 0.36);
-      core.addColorStop(0, "rgba(0, 217, 255, 0.16)");
-      core.addColorStop(0.35, "rgba(139, 92, 246, 0.08)");
-      core.addColorStop(1, "transparent");
-      ctx.fillStyle = core;
-      ctx.fillRect(0, 0, w, h);
-
-      ctx.strokeStyle = "rgba(0, 217, 255, 0.16)";
-      ctx.lineWidth = dpr;
-      for (let i = 0; i < 3; i++) {
-        ctx.beginPath();
-        ctx.ellipse(
-          cx,
-          cy,
-          Math.min(w, 1200) * (0.18 + i * 0.06),
-          Math.min(h, 900) * (0.045 + i * 0.015),
-          t * (i % 2 ? -0.18 : 0.22) + i,
-          0,
-          Math.PI * 2
-        );
-        ctx.stroke();
-      }
-
-      for (const p of parts) {
-        if (!reduce) {
-          p.y -= p.v / 30;
-          if (p.y < -0.02) p.y = 1.02;
-        }
-        const alpha = 0.2 + Math.abs(Math.sin(t * 1.6 + p.x * 25)) * 0.45;
-        ctx.fillStyle = `rgba(0, 217, 255, ${alpha * 0.45})`;
-        ctx.fillRect(p.x * w, p.y * h, p.s * dpr, p.s * dpr);
-      }
-
-      if (!reduce) {
-        raf = requestAnimationFrame(draw);
-      }
-    };
-
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting;
-        if (visible && !raf) draw();
-      },
-      { threshold: 0.02 }
     );
-    io.observe(root);
-    draw();
+  }, [activeIndex, viewMode]);
 
-    return () => {
-      cancelAnimationFrame(raf);
-      io.disconnect();
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
+  /* Ultranatural 3D Book Page-Turn Transition */
+  const turnFolioPage = (nextIdx: number) => {
+    if (nextIdx === activeIndex || flipAnimatingRef.current || total === 0) return;
+    const wrapped = (nextIdx + total) % total;
 
-  /* Interactive 3D Hologram Orbital Engine */
-  useEffect(() => {
-    if (viewMode !== "orbital" || total === 0) return;
-    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let raf = 0;
+    if (
+      viewMode !== "folio" ||
+      !flipLeafRef.current ||
+      window.innerWidth < 1024 ||
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      setActiveIndex(wrapped);
+      return;
+    }
 
-    const renderRing = () => {
-      if (autoOrbit && !draggingRef.current.active && !reduce && !previewProject) {
-        targetRotRef.current += 0.12;
-      }
-      currentRotRef.current += (targetRotRef.current - currentRotRef.current) * 0.09;
-      const rot = currentRotRef.current;
+    const forward =
+      nextIdx > activeIndex || (activeIndex === total - 1 && wrapped === 0 && nextIdx >= total);
+    const leaf = flipLeafRef.current;
+    flipAnimatingRef.current = true;
 
-      const ring = ringRef.current;
-      const radius = Math.min(window.innerWidth * 0.36, 470);
-      if (ring) {
-        ring.style.transform = `rotateX(-5deg) rotateY(${-rot}deg)`;
-      }
+    gsap.set(leaf, {
+      display: "block",
+      left: forward ? "50%" : "0%",
+      transformOrigin: forward ? "left center" : "right center",
+      rotateY: 0,
+      opacity: 1,
+    });
 
-      let closestIdx = 0;
-      let bestFront = -2;
+    const tl = gsap.timeline({
+      onComplete: () => {
+        gsap.set(leaf, { display: "none", rotateY: 0 });
+        flipAnimatingRef.current = false;
+      },
+    });
 
-      ringCardsRef.current.forEach((card, i) => {
-        if (!card) return;
-        let angle = i * stepDeg - rot;
-        angle = ((((angle + 180) % 360) + 360) % 360) - 180;
-        const front = Math.cos((angle * Math.PI) / 180);
-        if (front > bestFront) {
-          bestFront = front;
-          closestIdx = i;
-        }
-        card.style.transform = `translate(-50%, -50%) rotateY(${i * stepDeg}deg) translateZ(${radius}px)`;
-        card.style.opacity = String(front > -0.2 ? Math.max(0.22, 0.35 + front * 0.65) : 0.08);
-        card.style.zIndex = String(100 + Math.round(front * 100));
-        card.style.pointerEvents = front > 0.55 ? "auto" : "none";
-      });
-
-      setActiveIndex((prev) => (prev !== closestIdx ? closestIdx : prev));
-      raf = requestAnimationFrame(renderRing);
-    };
-
-    raf = requestAnimationFrame(renderRing);
-    return () => cancelAnimationFrame(raf);
-  }, [viewMode, total, stepDeg, autoOrbit, previewProject]);
-
-  const jumpToOrbitalCard = (idx: number) => {
-    setAutoOrbit(false);
-    const current = targetRotRef.current;
-    const desired = idx * stepDeg;
-    const diff = ((((desired - current) % 360) + 540) % 360) - 180;
-    targetRotRef.current = current + diff;
-    setActiveIndex(idx);
+    tl.to(leaf, {
+      rotateY: forward ? -90 : 90,
+      duration: 0.28,
+      ease: "power2.in",
+      onComplete: () => setActiveIndex(wrapped),
+    }).to(leaf, {
+      rotateY: forward ? -180 : 180,
+      opacity: 0.35,
+      duration: 0.32,
+      ease: "power2.out",
+    });
   };
 
-  const stepOrbital = (dir: -1 | 1) => {
-    setAutoOrbit(false);
-    const nextIdx = (activeIndex + dir + total) % total;
-    jumpToOrbitalCard(nextIdx);
+  /* Subtle 3D tilt on Vortex wide glass card (bounded strictly inside its column — zero overflow!) */
+  const handleVortexCardMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = vortexTiltRef.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = el.getBoundingClientRect();
+    const nx = (e.clientX - rect.left) / rect.width - 0.5;
+    const ny = (e.clientY - rect.top) / rect.height - 0.5;
+    gsap.to(el, {
+      rotateY: nx * 7,
+      rotateX: -ny * 5,
+      duration: 0.35,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
   };
 
-  const liveCount = projects.filter((p) => Boolean(p.demo)).length;
+  const resetVortexCardTilt = () => {
+    const el = vortexTiltRef.current;
+    if (!el) return;
+    gsap.to(el, { rotateY: 0, rotateX: 0, duration: 0.5, ease: "power3.out" });
+  };
+
+  const selectProject = (idx: number) => {
+    setAutoCycle(false);
+    if (viewMode === "folio") {
+      turnFolioPage(idx);
+    } else {
+      setActiveIndex((idx + total) % total);
+    }
+  };
+
+  if (!activeProject) return null;
 
   return (
     <section
       id="projects"
-      ref={sectionRef}
-      className="relative overflow-hidden border-y border-white/5 bg-[#04060c] py-28 md:py-36"
+      className="relative isolate scroll-mt-28 overflow-hidden border-y border-white/5 bg-[#04060c] py-28 md:py-36"
     >
-      <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden />
+      {/* Subtle Ambient Background Grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-grid opacity-30"
+      />
 
       <div className="relative z-10 mx-auto max-w-7xl px-6">
-        {/* Top Mission Control Header */}
+        {/* ── Mission Control Header ───────────────────────────────────────── */}
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <div>
             <p className="font-mono text-xs font-semibold uppercase tracking-[0.35em] text-[#00D9FF]">
@@ -440,18 +360,19 @@ export default function ProjectsShowcase({
             </p>
             <RevealHeading text="DEPLOYED SYSTEMS & SHOWCASE" className="mt-2" />
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
-              Production web applications deployed across Vercel Edge &amp; Render Cloud — click any
-              viewport to launch the interactive Holo Preview right inside this page.
+              Interactive 3D showcase of live production web applications — switch between{" "}
+              <span className="text-[#00D9FF]">Vortex 3D</span>,{" "}
+              <span className="text-[#C4B5FD]">3D Holo Folio</span>, and{" "}
+              <span className="text-emerald-300">Bento Grid</span>.
             </p>
           </div>
 
-          {/* Right Telemetry HUD Pill */}
           <div className="flex flex-wrap items-center gap-3 self-start rounded-2xl border border-white/10 bg-[#080f20]/90 px-4 py-3 font-mono text-xs lg:self-end">
             <div className="flex items-center gap-2 border-r border-white/10 pr-3">
               <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400" />
               <span className="text-slate-300">
-                <strong className="text-white">{String(projects.length).padStart(2, "0")}</strong>{" "}
-                SYSTEMS ({liveCount} LIVE STREAM)
+                <strong className="text-white">{String(total).padStart(2, "0")}/{String(total).padStart(2, "0")}</strong>{" "}
+                LIVE DEPLOYMENTS
               </span>
             </div>
             <a
@@ -465,67 +386,485 @@ export default function ProjectsShowcase({
           </div>
         </div>
 
-        {/* Interactive Control Deck: Filter Matrix + View Mode Switcher */}
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#00D9FF]/20 bg-[#070d1c]/90 p-2.5 sm:px-4">
-          {/* Category Filters */}
-          <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
-            {CATEGORIES.map((cat) => {
-              const count =
-                cat.id === "all"
-                  ? projects.length
-                  : projects.filter((p) => p.category === cat.id).length;
-              const active = activeCategory === cat.id && viewMode === "bento";
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => {
-                    setActiveCategory(cat.id);
-                    if (viewMode !== "bento") setViewMode("bento");
-                  }}
-                  className={`cursor-pointer rounded-lg px-3 py-1.5 transition-all duration-200 ${
-                    active
-                      ? "border border-[#00D9FF]/40 bg-[#00D9FF]/15 font-semibold text-[#00D9FF] shadow-[0_0_14px_#00D9FF22]"
-                      : "border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200"
-                  }`}
-                >
-                  <span>{cat.label}</span>
-                  <span className="ml-1.5 text-[10px] opacity-70">[{count}]</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Dual Mode Switcher (Cyber Bento vs 3D Hologram Ring) */}
-          <div className="hidden items-center gap-1 rounded-xl border border-white/10 bg-[#040812] p-1 font-mono text-xs md:flex">
+        {/* ── Control Deck (Strictly Separated Above the Stage — Never Overlapped) ── */}
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#00D9FF]/20 bg-[#070d1c]/95 p-2.5 sm:px-4">
+          {/* View Mode Selector */}
+          <div className="flex flex-wrap items-center gap-1 rounded-xl border border-white/10 bg-[#040812] p-1 font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => setViewMode("vortex")}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                viewMode === "vortex"
+                  ? "bg-[#00D9FF] font-bold text-[#05070D] shadow-[0_0_16px_#00D9FF66]"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Sparkles size={13} /> VORTEX 3D
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("folio")}
+              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
+                viewMode === "folio"
+                  ? "bg-[#00D9FF] font-bold text-[#05070D] shadow-[0_0_16px_#00D9FF66]"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <BookOpen size={13} /> 3D FOLIO FLIP
+            </button>
             <button
               type="button"
               onClick={() => setViewMode("bento")}
               className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
                 viewMode === "bento"
-                  ? "bg-[#00D9FF] font-bold text-[#05070D] shadow-[0_0_15px_#00D9FF66]"
+                  ? "bg-[#00D9FF] font-bold text-[#05070D] shadow-[0_0_16px_#00D9FF66]"
                   : "text-slate-400 hover:text-white"
               }`}
             >
-              <Grid2X2 size={14} /> CYBER DECK
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("orbital")}
-              className={`flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 transition-all ${
-                viewMode === "orbital"
-                  ? "bg-[#00D9FF] font-bold text-[#05070D] shadow-[0_0_15px_#00D9FF66]"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              <Orbit size={14} /> 3D HOLOGRAM
+              <Grid2X2 size={13} /> BENTO GRID
             </button>
           </div>
+
+          {/* Right contextual controls */}
+          {viewMode === "bento" ? (
+            <div className="flex flex-wrap items-center gap-1.5 font-mono text-xs">
+              {CATEGORIES.map((cat) => {
+                const count =
+                  cat.id === "all"
+                    ? projects.length
+                    : projects.filter((p) => p.category === cat.id).length;
+                const active = activeCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setActiveCategory(cat.id)}
+                    className={`cursor-pointer rounded-lg px-2.5 py-1 transition-all ${
+                      active
+                        ? "border border-[#00D9FF]/40 bg-[#00D9FF]/15 font-semibold text-[#00D9FF]"
+                        : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                    }`}
+                  >
+                    {cat.label} [{count}]
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 font-mono text-xs">
+              <button
+                type="button"
+                onClick={() => selectProject(activeIndex - 1)}
+                className="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
+                aria-label="Previous project"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <span className="px-2 text-slate-300">
+                <strong className="text-[#00D9FF]">{String(activeIndex + 1).padStart(2, "0")}</strong>
+                <span className="text-slate-600"> / </span>
+                {String(total).padStart(2, "0")}
+              </span>
+              <button
+                type="button"
+                onClick={() => selectProject(activeIndex + 1)}
+                className="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
+                aria-label="Next project"
+              >
+                <ChevronRight size={16} />
+              </button>
+
+              {viewMode === "vortex" && (
+                <button
+                  type="button"
+                  onClick={() => setAutoCycle((v) => !v)}
+                  className={`ml-1 flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] transition-all ${
+                    autoCycle
+                      ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                      : "border-white/10 bg-white/5 text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {autoCycle ? <Pause size={11} /> : <Play size={11} />}
+                  {autoCycle ? "AUTO" : "PAUSED"}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* MODE 1: CYBER BENTO COMMAND GRID */}
+        {/* =====================================================================
+         * MODE 1: ACTIVE THEORY–STYLE 3D PARTICLE MORPH VORTEX STAGE
+         * ===================================================================== */}
+        {viewMode === "vortex" && (
+          <div className="relative mt-6 overflow-hidden rounded-3xl border border-[#00D9FF]/25 bg-[#03060f] p-5 shadow-[0_30px_90px_rgba(0,0,0,0.85)] sm:p-8 lg:p-10">
+            {/* Full-Stage 3D Morphing Particle Sculpture Canvas */}
+            <div className="pointer-events-none absolute inset-0 z-0">
+              <ParticleMorphCanvas visual={activeProject.visual} />
+            </div>
+
+            {/* Subtle Top/Bottom Vignette */}
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_30%_50%,transparent_28%,rgba(3,6,15,0.78)_85%)]"
+            />
+
+            <div className="relative z-10 grid grid-cols-1 items-end gap-8 lg:min-h-[470px] lg:grid-cols-12 lg:items-center">
+              {/* Left Column: Open Vista for 3D Particle Sculpture + Active Theory Mission Index */}
+              <div className="flex h-full flex-col justify-between gap-6 lg:col-span-5">
+                <div className="inline-flex w-fit items-center gap-2 rounded-full border border-[#00D9FF]/30 bg-[#050b18]/85 px-3.5 py-1.5 font-mono text-[10px] tracking-[0.22em] text-[#00D9FF]">
+                  <span className="h-1.5 w-1.5 animate-ping rounded-full bg-[#00D9FF]" />
+                  MESH // {SCULPTURE_LABELS[activeProject.visual]}
+                </div>
+
+                {/* Open space where the 3D particle sculpture shines on mobile/desktop */}
+                <div className="h-44 lg:h-40" aria-hidden />
+
+                {/* Bottom-Left Mission Selector List (Never Overlapped!) */}
+                <div className="rounded-2xl border border-white/10 bg-[#050a16]/85 p-3 font-mono">
+                  <p className="mb-2 px-2 text-[10px] tracking-[0.28em] text-slate-500">
+                    SELECT DEPLOYMENT TO MORPH CORE
+                  </p>
+                  <div className="space-y-1">
+                    {projects.map((proj, idx) => {
+                      const isCurrent = idx === activeIndex;
+                      return (
+                        <button
+                          key={proj.id}
+                          type="button"
+                          onClick={() => selectProject(idx)}
+                          className={`group flex w-full cursor-pointer items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition-all ${
+                            isCurrent
+                              ? "border border-[#00D9FF]/45 bg-[#00D9FF]/15 text-white shadow-[0_0_18px_#00D9FF22]"
+                              : "border border-transparent text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
+                          }`}
+                        >
+                          <span className="flex items-center gap-2.5 truncate">
+                            <span
+                              className={`text-[10px] ${
+                                isCurrent ? "font-bold text-[#00D9FF]" : "text-slate-600"
+                              }`}
+                            >
+                              {String(idx + 1).padStart(2, "0")}
+                            </span>
+                            <span className="truncate font-semibold tracking-wider">
+                              {proj.name.toUpperCase()}
+                            </span>
+                          </span>
+                          <span
+                            className={`text-[10px] ${
+                              isCurrent ? "text-[#00D9FF]" : "text-slate-600 group-hover:text-slate-400"
+                            }`}
+                          >
+                            {isCurrent ? "● ACTIVE" : proj.platform.split(" ")[0].toUpperCase()}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Wide Landscape Frosted Holo-Glass Showcase Panel */}
+              <div className="lg:col-span-7 [perspective:1100px]">
+                <div
+                  ref={vortexTiltRef}
+                  onMouseMove={handleVortexCardMove}
+                  onMouseLeave={resetVortexCardTilt}
+                  className="[transform-style:preserve-3d]"
+                >
+                  <div
+                    ref={vortexCardRef}
+                    className="cyber-project-card relative overflow-hidden rounded-2xl border border-[#00D9FF]/30 p-5 sm:p-7"
+                  >
+                    {/* Top Telemetry Strip */}
+                    <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3 font-mono text-[11px]">
+                      <div className="flex items-center gap-2 text-[#00D9FF]">
+                        <span>PROJECT_{String(activeIndex + 1).padStart(2, "0")}</span>
+                        <span className="text-slate-600">{"//"}</span>
+                        <span className="text-slate-300">{activeProject.platform}</span>
+                      </div>
+                      <span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                        {activeProject.status}
+                      </span>
+                    </div>
+
+                    {/* Holographic Viewport */}
+                    <ProjectViewport project={activeProject} onPreview={setPreviewProject} />
+
+                    {/* Scramble-Decoded Title & Details */}
+                    <div className="mt-5">
+                      <h3 className="font-mono text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+                        <ScrambleText text={activeProject.name} />
+                      </h3>
+                      <p className="mt-1 font-mono text-xs tracking-wide text-[#00D9FF]">
+                        {activeProject.subtitle}
+                      </p>
+                      <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                        {activeProject.description}
+                      </p>
+                    </div>
+
+                    {/* Key Highlights */}
+                    <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                      {activeProject.highlights.map((h) => (
+                        <div
+                          key={h}
+                          className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-[#050914]/80 px-2.5 py-1.5 text-xs text-slate-200"
+                        >
+                          <Check size={12} className="shrink-0 text-emerald-400" />
+                          <span className="truncate">{h}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tech Stack + Action Bar */}
+                    <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-4">
+                      <div className="flex flex-wrap gap-1.5">
+                        {activeProject.tech.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-md border border-[#00D9FF]/25 bg-[#00D9FF]/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#BAE6FD]"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        {activeProject.demo && (
+                          <a
+                            href={activeProject.demo}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-xl bg-[#00D9FF] px-4 py-2 font-mono text-xs font-bold text-[#05070D] transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_#00D9FF99]"
+                          >
+                            LIVE DEMO <ExternalLink size={13} />
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setPreviewProject(activeProject)}
+                          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[#00D9FF]/40 bg-[#00D9FF]/10 px-3.5 py-2 font-mono text-xs font-semibold text-white transition-all hover:bg-[#00D9FF]/20"
+                        >
+                          <Eye size={13} className="text-[#00D9FF]" /> HOLO PREVIEW
+                        </button>
+                        <a
+                          href={activeProject.github}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
+                        >
+                          {activeProject.isPrivateRepo ? <Lock size={13} /> : <Github size={13} />}
+                          <span>{activeProject.isPrivateRepo ? "PRIVATE" : "SOURCE"}</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* =====================================================================
+         * MODE 2: ULTRANATURAL–STYLE 3D INTERACTIVE BOOK / FOLIO SPREAD
+         * ===================================================================== */}
+        {viewMode === "folio" && (
+          <div className="mt-6">
+            {/* Dark Brushed Studio Surface */}
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[radial-gradient(ellipse_at_top,#0c162c_0%,#040710_72%)] p-4 shadow-[0_35px_90px_rgba(0,0,0,0.9)] sm:p-8 lg:p-12">
+              <div className="mx-auto max-w-6xl [perspective:2000px]">
+                <div
+                  ref={folioBookRef}
+                  className="relative grid grid-cols-1 overflow-hidden rounded-2xl border border-[#00D9FF]/25 bg-[#070d1b] shadow-[0_25px_70px_rgba(0,0,0,0.85)] lg:grid-cols-2 lg:[transform:rotateX(4deg)] [transform-style:preserve-3d]"
+                >
+                  {/* Center Glowing Book Spine Seam */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 left-1/2 z-20 hidden w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-[#00D9FF]/60 to-transparent shadow-[0_0_18px_#00D9FF] lg:block"
+                  />
+
+                  {/* Animated 3D Flipping Page Sheet Overlay */}
+                  <div
+                    ref={flipLeafRef}
+                    aria-hidden
+                    style={{ display: "none" }}
+                    className="pointer-events-none absolute inset-y-0 z-30 w-1/2 rounded-r-2xl border border-[#00D9FF]/40 bg-gradient-to-br from-[#0e1b36] via-[#091224] to-[#050914] shadow-[0_0_50px_rgba(0,217,255,0.28)]"
+                  >
+                    <div className="flex h-full flex-col justify-between p-8 opacity-45">
+                      <div className="h-3 w-28 rounded bg-[#00D9FF]/40" />
+                      <div className="space-y-3">
+                        <div className="h-8 w-3/4 rounded bg-white/20" />
+                        <div className="h-4 w-full rounded bg-white/10" />
+                        <div className="h-4 w-5/6 rounded bg-white/10" />
+                      </div>
+                      <div className="h-3 w-20 rounded bg-[#00D9FF]/30" />
+                    </div>
+                  </div>
+
+                  {/* LEFT PAGE: Engineering Story & Architecture */}
+                  <div className="relative flex flex-col justify-between border-b border-white/10 bg-gradient-to-br from-[#0a1326] to-[#060b16] p-6 sm:p-9 lg:border-b-0 lg:border-r">
+                    <div>
+                      <div className="flex items-center justify-between font-mono text-[11px] text-slate-400">
+                        <span className="tracking-[0.28em] text-[#00D9FF]">
+                          CHAPTER {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                          {String(total).padStart(2, "0")}
+                        </span>
+                        <span>{activeProject.platform.toUpperCase()}</span>
+                      </div>
+
+                      <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.3em] text-slate-500">
+                        A PIECE OF DESIGN · A PIECE OF ENGINEERING
+                      </p>
+                      <h3 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                        <ScrambleText text={activeProject.name} />
+                      </h3>
+                      <p className="mt-1.5 font-mono text-sm text-[#00D9FF]">
+                        {activeProject.subtitle}
+                      </p>
+
+                      <p className="mt-5 text-sm leading-relaxed text-slate-300 sm:text-base">
+                        {activeProject.description}
+                      </p>
+
+                      {/* Numbered Capability List */}
+                      <div className="mt-6 space-y-2.5">
+                        {activeProject.highlights.map((item, i) => (
+                          <div
+                            key={item}
+                            className="flex items-center gap-3 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3.5 py-2.5 text-xs text-slate-200"
+                          >
+                            <span className="font-mono text-[11px] font-bold text-[#00D9FF]">
+                              0{i + 1}
+                            </span>
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+                      <div className="flex flex-wrap gap-1.5">
+                        {activeProject.tech.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-md border border-[#00D9FF]/25 bg-[#00D9FF]/10 px-2.5 py-0.5 font-mono text-[10px] text-[#BAE6FD]"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                      <span className="font-mono text-[11px] text-slate-500">
+                        PAGE {activeIndex * 2 + 1}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* RIGHT PAGE: Interactive Live System Preview & Controls */}
+                  <div className="relative flex flex-col justify-between bg-gradient-to-bl from-[#0b152b] to-[#050913] p-6 sm:p-9">
+                    <div>
+                      <div className="mb-4 flex items-center justify-between font-mono text-[11px]">
+                        <span className="text-slate-400">LIVE PRODUCTION INTERFACE</span>
+                        <span className="flex items-center gap-1.5 text-emerald-400">
+                          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                          {activeProject.status}
+                        </span>
+                      </div>
+
+                      <ProjectViewport project={activeProject} onPreview={setPreviewProject} />
+
+                      <div className="mt-6 rounded-xl border border-white/10 bg-[#040812]/90 p-4 font-mono text-xs">
+                        <p className="text-[10px] tracking-[0.25em] text-[#00D9FF]">
+                          ▸ INTERACTIVE DEPLOYMENT ENDPOINT
+                        </p>
+                        <p className="mt-1.5 truncate text-slate-300">
+                          {activeProject.demo ?? activeProject.github}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-8 space-y-4">
+                      <div className="flex flex-wrap items-center gap-3">
+                        {activeProject.demo && (
+                          <a
+                            href={activeProject.demo}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 rounded-xl bg-[#00D9FF] px-5 py-2.5 font-mono text-xs font-bold text-[#05070D] transition-all hover:-translate-y-0.5 hover:shadow-[0_0_24px_#00D9FF99]"
+                          >
+                            OPEN LIVE WEBSITE <ExternalLink size={14} />
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setPreviewProject(activeProject)}
+                          className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#00D9FF]/40 bg-[#00D9FF]/10 px-4 py-2.5 font-mono text-xs font-semibold text-white transition-all hover:bg-[#00D9FF]/20"
+                        >
+                          <Eye size={14} className="text-[#00D9FF]" /> HOLO PREVIEW
+                        </button>
+                        <a
+                          href={activeProject.github}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 font-mono text-xs text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
+                        >
+                          {activeProject.isPrivateRepo ? <Lock size={13} /> : <Github size={13} />}
+                          <span>{activeProject.isPrivateRepo ? "PRIVATE" : "SOURCE"}</span>
+                        </a>
+                      </div>
+
+                      {/* Flip Page Triggers right on the Folio corners */}
+                      <div className="flex items-center justify-between border-t border-white/10 pt-4 font-mono text-xs">
+                        <button
+                          type="button"
+                          onClick={() => turnFolioPage(activeIndex - 1)}
+                          className="flex cursor-pointer items-center gap-1.5 text-slate-400 transition-colors hover:text-[#00D9FF]"
+                        >
+                          <ChevronLeft size={15} /> PREV CHAPTER
+                        </button>
+                        <span className="text-[11px] text-slate-500">
+                          PAGE {activeIndex * 2 + 2}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => turnFolioPage(activeIndex + 1)}
+                          className="flex cursor-pointer items-center gap-1.5 text-[#00D9FF] transition-colors hover:text-white"
+                        >
+                          FLIP NEXT PAGE <ChevronRight size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Dedicated Chapter Dock Below the Book (Zero Overlap!) */}
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 font-mono text-xs">
+              {projects.map((p, idx) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => turnFolioPage(idx)}
+                  className={`cursor-pointer rounded-xl px-3.5 py-2 transition-all ${
+                    activeIndex === idx
+                      ? "border border-[#00D9FF]/50 bg-[#00D9FF]/20 font-bold text-[#00D9FF] shadow-[0_0_14px_#00D9FF33]"
+                      : "border border-white/10 bg-[#070d1c] text-slate-400 hover:border-white/25 hover:text-white"
+                  }`}
+                >
+                  {String(idx + 1).padStart(2, "0")} · {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* =====================================================================
+         * MODE 3: 12-COLUMN CYBER BENTO COMMAND GRID
+         * ===================================================================== */}
         {viewMode === "bento" && (
-          <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-12">
+          <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-12">
             {filteredProjects.map((project, idx) => {
               const isAll = activeCategory === "all";
               const colSpan = isAll
@@ -548,106 +887,6 @@ export default function ProjectsShowcase({
             })}
           </div>
         )}
-
-        {/* MODE 2: INTERACTIVE 3D HOLOGRAM ORBITAL STAGE */}
-        {viewMode === "orbital" && (
-          <div className="mt-8 flex flex-col items-center">
-            <div
-              onPointerDown={(e) => {
-                if ((e.target as HTMLElement).closest("a, button, [role='button']")) return;
-                setAutoOrbit(false);
-                draggingRef.current = {
-                  active: true,
-                  startX: e.clientX,
-                  startRot: targetRotRef.current,
-                };
-              }}
-              onPointerMove={(e) => {
-                if (!draggingRef.current.active) return;
-                const dx = e.clientX - draggingRef.current.startX;
-                targetRotRef.current = draggingRef.current.startRot - dx * 0.28;
-              }}
-              onPointerUp={() => {
-                draggingRef.current.active = false;
-              }}
-              onPointerLeave={() => {
-                draggingRef.current.active = false;
-              }}
-              className="relative h-[540px] w-full cursor-grab select-none overflow-visible [perspective:1500px] active:cursor-grabbing"
-            >
-              <div
-                ref={ringRef}
-                className="relative h-full w-full [transform-style:preserve-3d]"
-              >
-                {projects.map((project, i) => (
-                  <div
-                    key={project.id}
-                    ref={(el) => {
-                      ringCardsRef.current[i] = el;
-                    }}
-                    className="absolute left-1/2 top-1/2 w-[22rem] will-change-transform sm:w-[25rem]"
-                  >
-                    <CyberProjectCard
-                      project={project}
-                      index={i}
-                      compact
-                      onPreview={setPreviewProject}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 3D Orbital Quick-Select HUD Dock */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#080f20]/95 px-4 py-2.5 font-mono text-xs">
-              <button
-                type="button"
-                onClick={() => stepOrbital(-1)}
-                className="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
-                aria-label="Previous project"
-              >
-                <ChevronLeft size={15} />
-              </button>
-
-              {projects.map((p, idx) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => jumpToOrbitalCard(idx)}
-                  className={`cursor-pointer rounded-lg px-3 py-1.5 transition-all ${
-                    activeIndex === idx
-                      ? "border border-[#00D9FF]/50 bg-[#00D9FF]/20 font-bold text-[#00D9FF] shadow-[0_0_12px_#00D9FF33]"
-                      : "text-slate-400 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  {String(idx + 1).padStart(2, "0")} · {p.name.split(" ")[0].toUpperCase()}
-                </button>
-              ))}
-
-              <button
-                type="button"
-                onClick={() => stepOrbital(1)}
-                className="cursor-pointer rounded-lg border border-white/10 bg-white/5 p-2 text-slate-300 transition-colors hover:border-[#00D9FF] hover:text-[#00D9FF]"
-                aria-label="Next project"
-              >
-                <ChevronRight size={15} />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setAutoOrbit((v) => !v)}
-                className={`ml-2 flex cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[11px] transition-all ${
-                  autoOrbit
-                    ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
-                    : "border-white/10 bg-white/5 text-slate-400 hover:text-white"
-                }`}
-              >
-                {autoOrbit ? <Pause size={12} /> : <Play size={12} />}
-                {autoOrbit ? "AUTO-ORBIT ON" : "AUTO-ORBIT PAUSED"}
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Interactive Holo Live Preview Modal */}
@@ -659,4 +898,3 @@ export default function ProjectsShowcase({
     </section>
   );
 }
-
