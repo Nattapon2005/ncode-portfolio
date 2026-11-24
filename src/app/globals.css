@@ -166,3 +166,67 @@ body { background: var(--bg); color:#F5F9FF; font-family: system-ui, "Segoe UI",
   .skeleton-shimmer::after, .skeleton-bar::after { animation: none; }
 }
 
+/* ── cyber project cards & holographic HUD ───────────────────────────── */
+.cyber-project-card {
+  position: relative;
+  background: linear-gradient(155deg, rgba(15, 24, 42, 0.95) 0%, rgba(7, 11, 22, 0.96) 100%);
+  border: 1px solid rgba(0, 217, 255, 0.16);
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.cyber-project-card:hover {
+  border-color: rgba(0, 217, 255, 0.55);
+  box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85), 0 0 32px rgba(0, 217, 255, 0.16), inset 0 1px 0 rgba(0, 217, 255, 0.25);
+}
+.cyber-project-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 35%), rgba(0, 217, 255, 0.13), transparent 70%);
+}
+.cyber-project-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes eqPulse {
+  0%, 100% { transform: scaleY(0.22); }
+  50% { transform: scaleY(1); }
+}
+.eq-bar {
+  transform-origin: bottom;
+  animation: eqPulse var(--eq-dur, 1.2s) ease-in-out var(--eq-delay, 0s) infinite;
+}
+
+@keyframes orbitSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.orbit-spin-slow {
+  transform-origin: center;
+  animation: orbitSpin 22s linear infinite;
+}
+.orbit-spin-rev {
+  transform-origin: center;
+  animation: orbitSpin 16s linear infinite reverse;
+}
+
+@keyframes hudScanLine {
+  0% { transform: translateY(-100%); opacity: 0; }
+  20% { opacity: 0.75; }
+  80% { opacity: 0.75; }
+  100% { transform: translateY(260%); opacity: 0; }
+}
+.hud-viewport-scan {
+  animation: hudScanLine 4.2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eq-bar, .orbit-spin-slow, .orbit-spin-rev, .hud-viewport-scan {
+    animation: none !important;
+  }
+}
+

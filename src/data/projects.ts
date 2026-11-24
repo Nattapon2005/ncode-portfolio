@@ -1,52 +1,140 @@
+export type ProjectCategory = "all" | "3d-ai" | "ecommerce" | "frontend";
+
+export type ProjectVisualType = "globe" | "audio" | "techgear" | "planto" | "outdoors";
+
 export type Project = {
+  id: string;
+  repoName?: string;
   name: string;
+  subtitle: string;
   description: string;
+  highlights: string[];
   tech: string[];
+  category: Exclude<ProjectCategory, "all">;
+  platform: "Vercel Edge" | "Render Cloud";
+  status: "LIVE" | "BETA LIVE" | "DEPLOYED";
+  accent: string;
+  visual: ProjectVisualType;
   github: string;
+  isPrivateRepo?: boolean;
   demo?: string;
-  image?: string;
+  featured?: boolean;
+  stars?: number;
 };
 
 const gh = "https://github.com/Nattapon2005";
 
-// Verified real data directly from GitHub profile and repositories (@Nattapon2005)
+// Curated & verified deployed systems by Nattapon Phliwan (@Nattapon2005)
 export const fallbackProjects: Project[] = [
   {
-    name: "TechGear-Ecommerce-Web",
-    description: "Modern E-Commerce Web Shopping Application built with PHP, MySQL, and responsive CSS with cart, checkout, and inventory catalog.",
-    tech: ["PHP", "MySQL", "JavaScript", "E-Commerce"],
+    id: "condoverse",
+    repoName: "condoverse",
+    name: "CondoVerse",
+    subtitle: "3D Interactive Global Residence Explorer",
+    description:
+      "Interactive 3D Earth real-estate discovery platform — spin the globe across continents, explore luxury residences in 3D space, and curate personal collections.",
+    highlights: [
+      "Interactive 3D Earth Globe",
+      "Multi-Continent Filtering",
+      "Saved Residences & Auth",
+    ],
+    tech: ["Next.js", "Three.js", "TypeScript", "Tailwind CSS"],
+    category: "3d-ai",
+    platform: "Vercel Edge",
+    status: "LIVE",
+    accent: "#00D9FF",
+    visual: "globe",
+    github: gh,
+    isPrivateRepo: true,
+    demo: "https://condoverse.vercel.app/",
+    featured: true,
+  },
+  {
+    id: "nexa-music-app",
+    repoName: "nexa-music-app",
+    name: "NEXA Studio",
+    subtitle: "Discord Music Control Room & AI Companion",
+    description:
+      "Real-time web control room for the NEXA Discord companion — orchestrate voice channel audio streaming, live music queues, server permissions, and an AI studio assistant.",
+    highlights: [
+      "Discord Voice Stream Control",
+      "Live Music Queue & History",
+      "Integrated AI Assistant",
+    ],
+    tech: ["Next.js", "TypeScript", "Discord API", "AI Assistant"],
+    category: "3d-ai",
+    platform: "Render Cloud",
+    status: "BETA LIVE",
+    accent: "#8B5CF6",
+    visual: "audio",
+    github: gh,
+    isPrivateRepo: true,
+    demo: "https://nexa-music-app.onrender.com/",
+    featured: true,
+  },
+  {
+    id: "techgear-web",
+    repoName: "TechGear-Ecommerce-Web",
+    name: "TechGear Web",
+    subtitle: "Full-Stack Gaming & IT E-Commerce",
+    description:
+      "End-to-end gaming hardware store built with PHP, Cloud MySQL/TiDB & Docker — complete with PromptPay QR slip verification, admin dashboard, and live Leaflet GPS delivery tracking.",
+    highlights: [
+      "PromptPay QR & Slip Upload",
+      "Leaflet.js GPS Order Tracking",
+      "Admin Dashboard & Reviews",
+    ],
+    tech: ["PHP", "MySQL", "SCSS", "Docker", "Leaflet.js"],
+    category: "ecommerce",
+    platform: "Render Cloud",
+    status: "DEPLOYED",
+    accent: "#3B82F6",
+    visual: "techgear",
     github: `${gh}/TechGear-Ecommerce-Web`,
+    // Replace with public .onrender.com URL (e.g. https://techgear-web-xxxx.onrender.com)
+    demo: undefined,
   },
   {
-    name: "plant-ecommerce-website",
-    description: "Aesthetic botanical and indoor plant e-commerce shop designed with modular SCSS and fluid responsive product showcase.",
-    tech: ["SCSS", "HTML5", "JavaScript", "Responsive"],
+    id: "plant-ecommerce-website",
+    repoName: "plant-ecommerce-website",
+    name: "Planto. Botanical",
+    subtitle: "Indoor Plant E-Commerce & REST API",
+    description:
+      "Curated botanical shop showcasing house plants with a real-time slide-out cart, asynchronous product catalog backed by Node.js/Express REST APIs, and modular SCSS.",
+    highlights: [
+      "Real-Time Slide-Out Cart",
+      "Node.js / Express REST API",
+      "Fluid Modular SCSS UI",
+    ],
+    tech: ["JavaScript", "Node.js", "SCSS", "REST API"],
+    category: "ecommerce",
+    platform: "Vercel Edge",
+    status: "LIVE",
+    accent: "#34D399",
+    visual: "planto",
     github: `${gh}/plant-ecommerce-website`,
+    demo: "https://plant-ecommerce-website.vercel.app/",
   },
   {
-    name: "E-commerce Web App",
-    description: "Full-featured shopping cart system with real-time add, remove, and quantity updates with responsive mobile/desktop UI.",
-    tech: ["JavaScript", "HTML5", "CSS3", "Cart System"],
-    github: gh,
-    demo: "https://my-wed-template-github-io.onrender.com/",
-  },
-  {
-    name: "Product API Website",
-    description: "Fetches and renders dynamic product data asynchronously from RESTful JSON APIs with fast client-side rendering.",
-    tech: ["JavaScript", "REST API", "JSON", "Async"],
-    github: gh,
-  },
-  {
-    name: "newYear",
-    description: "Interactive celebration web experience featuring smooth CSS animations, keyframe effects, and dynamic particle visuals.",
-    tech: ["CSS3", "JavaScript", "Keyframes", "Animation"],
-    github: `${gh}/newYear`,
-  },
-  {
-    name: "webpage",
-    description: "Modern responsive web landing page architecture optimized for performance, semantic layout, and clean typography.",
-    tech: ["HTML5", "CSS3", "Responsive Design"],
+    id: "webpage",
+    repoName: "webpage",
+    name: "Acme Outdoors",
+    subtitle: "Futuristic React Storefront & Particle FX",
+    description:
+      "High-tech adventure gear web app powered by React + Vite — engineered with custom Canvas particle networks, aurora HUD overlays, page transitions, and dynamic route SEO.",
+    highlights: [
+      "Custom Canvas Particle FX",
+      "Smooth Page Transitions",
+      "Dynamic Per-Route SEO",
+    ],
+    tech: ["React", "Vite", "SCSS", "Canvas FX"],
+    category: "frontend",
+    platform: "Vercel Edge",
+    status: "LIVE",
+    accent: "#38BDF8",
+    visual: "outdoors",
     github: `${gh}/webpage`,
+    demo: "https://webpage-rust-eta.vercel.app/",
   },
 ];
 
