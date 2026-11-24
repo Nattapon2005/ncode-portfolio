@@ -18,6 +18,7 @@ export type Project = {
   github: string;
   isPrivateRepo?: boolean;
   demo?: string;
+  image: string;
   featured?: boolean;
   stars?: number;
 };
@@ -47,6 +48,7 @@ export const fallbackProjects: Project[] = [
     github: gh,
     isPrivateRepo: true,
     demo: "https://condoverse.vercel.app/",
+    image: "/projects/condoverse.png",
     featured: true,
   },
   {
@@ -70,6 +72,7 @@ export const fallbackProjects: Project[] = [
     github: gh,
     isPrivateRepo: true,
     demo: "https://nexa-music-app.onrender.com/",
+    image: "/projects/nexa-music-app.png",
     featured: true,
   },
   {
@@ -92,6 +95,7 @@ export const fallbackProjects: Project[] = [
     visual: "techgear",
     github: `${gh}/TechGear-Ecommerce-Web`,
     demo: "https://techgear-web-iabv.onrender.com/",
+    image: "/projects/techgear-web.png",
   },
   {
     id: "plant-ecommerce-website",
@@ -113,6 +117,7 @@ export const fallbackProjects: Project[] = [
     visual: "planto",
     github: `${gh}/plant-ecommerce-website`,
     demo: "https://plant-ecommerce-website.vercel.app/",
+    image: "/projects/plant-ecommerce-website.png",
   },
   {
     id: "webpage",
@@ -134,6 +139,7 @@ export const fallbackProjects: Project[] = [
     visual: "outdoors",
     github: `${gh}/webpage`,
     demo: "https://webpage-rust-eta.vercel.app/",
+    image: "/projects/webpage.png",
   },
 ];
 

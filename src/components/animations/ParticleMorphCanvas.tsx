@@ -4,10 +4,6 @@ import type { ProjectVisualType } from "@/data/projects";
 
 const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/#*+<>[]";
 
-/**
- * Active Theory–style character scramble decode text (hydration-safe: renders plain text on SSR,
- * scrambles in useEffect when `text` changes).
- */
 export function ScrambleText({
   text,
   className = "",
@@ -24,7 +20,7 @@ export function ScrambleText({
     }
 
     let frame = 0;
-    const totalFrames = 18;
+    const totalFrames = 20;
     let raf = 0;
 
     const tick = () => {
@@ -37,7 +33,7 @@ export function ScrambleText({
         if (ch === " " || i < locked) {
           next += ch;
         } else {
-          next += GLYPHS[(i * 7 + frame * 13) % GLYPHS.length];
+          next += GLYPHS[(i * 11 + frame * 17) % GLYPHS.length];
         }
       }
       setDisplay(next);
@@ -64,7 +60,7 @@ interface TargetPoint {
   b: number;
 }
 
-const COUNT = 640;
+const COUNT = 1120;
 
 function buildSculpture(kind: ProjectVisualType): TargetPoint[] {
   const pts: TargetPoint[] = [];
@@ -72,133 +68,170 @@ function buildSculpture(kind: ProjectVisualType): TargetPoint[] {
 
   for (let i = 0; i < COUNT; i++) {
     const u = i / COUNT;
+    const jitter = (((i * 29) % 19) - 9) * 0.012;
 
     if (kind === "globe") {
-      // 3D Earth Sphere + Tilted Orbital Ring
-      if (i < 460) {
-        const t = i / 460;
+      // Video 1: Central Particle Spine + 3D Orbital Earth & Tilted Ring
+      if (i < 620) {
+        const t = i / 620;
         const y = 1 - t * 2;
         const rad = Math.sqrt(Math.max(0, 1 - y * y));
         const theta = golden * i;
-        const R = 1.02;
-        const accent = i % 7 === 0;
+        const R = 1.05 + jitter;
+        const magenta = i % 11 === 0;
+        const mint = i % 5 === 0;
         pts.push({
           x: Math.cos(theta) * rad * R,
           y: y * R,
           z: Math.sin(theta) * rad * R,
-          r: accent ? 52 : 0,
-          g: accent ? 211 : 217,
-          b: accent ? 153 : 255,
+          r: magenta ? 217 : mint ? 52 : 0,
+          g: magenta ? 70 : mint ? 211 : 217,
+          b: magenta ? 239 : mint ? 153 : 255,
+        });
+      } else if (i < 900) {
+        // Towering vertical energy spine (Active Theory 00:00 signature!)
+        const idx = i - 620;
+        const v = (idx / 280) * 3.4 - 1.7;
+        const twist = v * 5.2 + (idx % 3) * 2.1;
+        const spineR = 0.24 + Math.abs(v) * 0.14 + jitter;
+        pts.push({
+          x: Math.cos(twist) * spineR,
+          y: v,
+          z: Math.sin(twist) * spineR,
+          r: idx % 2 === 0 ? 192 : 0,
+          g: idx % 2 === 0 ? 132 : 240,
+          b: 252,
         });
       } else {
-        const idx = i - 460;
-        const ang = (idx / (COUNT - 460)) * Math.PI * 2;
-        const ringR = 1.48 + ((idx % 3) - 1) * 0.04;
+        const idx = i - 900;
+        const ang = (idx / (COUNT - 900)) * Math.PI * 2;
+        const ringR = 1.62 + ((idx % 4) - 1.5) * 0.035;
         const rx = Math.cos(ang) * ringR;
         const rz = Math.sin(ang) * ringR;
-        const tilt = 0.46;
         pts.push({
           x: rx,
-          y: rz * Math.sin(tilt),
-          z: rz * Math.cos(tilt),
+          y: rz * Math.sin(0.42),
+          z: rz * Math.cos(0.42),
           r: 125,
           g: 211,
           b: 252,
         });
       }
     } else if (kind === "audio") {
-      // Video 1 (00:03): Glowing Quantum Torus Donut with Harmonic Sound Ripples
-      const major = (u * Math.PI * 2 * 13) % (Math.PI * 2);
-      const minor = u * Math.PI * 2;
-      const wave = 0.08 * Math.sin(major * 6);
-      const R = 1.0 + wave;
-      const r = 0.42;
-      const x = (R + r * Math.cos(minor)) * Math.cos(major);
-      const y = (R + r * Math.cos(minor)) * Math.sin(major);
-      const z = r * Math.sin(minor);
-      const spark = i % 9 === 0;
-      pts.push({
-        x,
-        y,
-        z,
-        r: spark ? 251 : i % 2 === 0 ? 167 : 0,
-        g: spark ? 191 : i % 2 === 0 ? 139 : 217,
-        b: spark ? 36 : i % 2 === 0 ? 250 : 255,
-      });
-    } else if (kind === "techgear") {
-      // Video 1 (00:00): Cyber Double-Helix Spine + Energy Core
-      if (i < 500) {
-        const strand = i % 2 === 0 ? 0 : Math.PI;
-        const t = (i / 500) * 2.7 - 1.35;
-        const ang = t * 3.4 + strand;
-        const rad = 0.72;
-        const isRung = i % 10 === 0;
-        const rungFactor = isRung ? ((i % 20) / 10 - 1) * 0.8 : 1;
+      // Video 1 (00:03): Quantum Torus Chamber + Hanging Filaments
+      if (i < 840) {
+        const t = i / 840;
+        const major = (t * Math.PI * 2 * 19) % (Math.PI * 2);
+        const minor = t * Math.PI * 2;
+        const R = 1.08 + 0.09 * Math.sin(major * 5);
+        const r = 0.44 + jitter;
         pts.push({
-          x: Math.cos(ang) * rad * rungFactor,
-          y: t,
-          z: Math.sin(ang) * rad * rungFactor,
-          r: isRung ? 255 : 59,
-          g: isRung ? 46 : 165,
-          b: isRung ? 136 : 255,
+          x: (R + r * Math.cos(minor)) * Math.cos(major),
+          y: (R + r * Math.cos(minor)) * Math.sin(major),
+          z: r * Math.sin(minor),
+          r: i % 7 === 0 ? 251 : i % 2 === 0 ? 168 : 0,
+          g: i % 7 === 0 ? 191 : i % 2 === 0 ? 85 : 217,
+          b: i % 7 === 0 ? 36 : i % 2 === 0 ? 247 : 255,
         });
       } else {
-        const idx = i - 500;
-        const ang = golden * idx * 4;
-        const y = (idx / 140) * 2.6 - 1.3;
-        const rad = 1.18 + (idx % 4) * 0.08;
+        // Surrounding chamber pillars & stardust
+        const idx = i - 840;
+        const ang = (idx % 8) * (Math.PI / 4) + jitter;
+        const y = ((idx / 280) * 3.0 - 1.5);
+        const rad = 1.65 + Math.sin(y * 2) * 0.15;
         pts.push({
           x: Math.cos(ang) * rad,
           y,
           z: Math.sin(ang) * rad,
+          r: 251,
+          g: 191,
+          b: 36,
+        });
+      }
+    } else if (kind === "techgear") {
+      // Video 1 (00:04): Interlocking Gyroscope Rings + Central Reactor Spine
+      if (i < 420) {
+        const ang = (i / 420) * Math.PI * 2;
+        const r = 1.35 + ((i % 5) - 2) * 0.04;
+        pts.push({
+          x: Math.cos(ang) * r,
+          y: Math.sin(ang) * r * Math.cos(0.35),
+          z: Math.sin(ang) * r * Math.sin(0.35),
           r: 0,
           g: 217,
           b: 255,
         });
+      } else if (i < 840) {
+        const idx = i - 420;
+        const ang = (idx / 420) * Math.PI * 2;
+        const r = 1.12 + ((idx % 5) - 2) * 0.04;
+        pts.push({
+          x: Math.cos(ang) * r * Math.cos(1.1),
+          y: Math.sin(ang) * r,
+          z: Math.cos(ang) * r * Math.sin(1.1),
+          r: idx % 4 === 0 ? 244 : 59,
+          g: idx % 4 === 0 ? 114 : 130,
+          b: idx % 4 === 0 ? 182 : 246,
+        });
+      } else {
+        const idx = i - 840;
+        const y = (idx / 280) * 3.2 - 1.6;
+        const ang = golden * idx * 3;
+        const r = 0.35 + Math.abs(Math.sin(y * 3)) * 0.22;
+        pts.push({
+          x: Math.cos(ang) * r,
+          y,
+          z: Math.sin(ang) * r,
+          r: 125,
+          g: 211,
+          b: 252,
+        });
       }
     } else if (kind === "planto") {
-      // 3D Bioluminescent Fibonacci Lotus Vortex
-      const r = Math.sqrt(u) * 1.35;
-      const theta = i * golden;
-      const petal = Math.sin(theta * 5) * 0.18 * u;
-      const y = Math.cos(u * Math.PI) * 0.65 + petal;
+      // Video 1 (00:00-00:01): Towering Twisted Bio-Nebula Vortex Column
+      const y = u * 3.4 - 1.7;
+      const branch = i % 3;
+      const theta = y * 3.6 + branch * ((Math.PI * 2) / 3) + jitter * 4;
+      const flare = 0.32 + Math.pow(Math.abs(y) * 0.65, 1.4) + ((i % 7) * 0.06);
+      const isPink = i % 6 === 0;
       pts.push({
-        x: Math.cos(theta) * (r + petal),
+        x: Math.cos(theta) * flare,
         y,
-        z: Math.sin(theta) * (r + petal),
-        r: i % 5 === 0 ? 0 : 52,
-        g: i % 5 === 0 ? 217 : 211,
-        b: i % 5 === 0 ? 255 : 153,
+        z: Math.sin(theta) * flare,
+        r: isPink ? 217 : i % 3 === 0 ? 0 : 52,
+        g: isPink ? 70 : i % 3 === 0 ? 217 : 211,
+        b: isPink ? 239 : i % 3 === 0 ? 255 : 153,
       });
     } else {
-      // Video 1 (00:05-00:06): 3D Infinity Ribbon / Lemniscate Portal + Gold Sparks
-      if (i < 510) {
-        const t = (i / 510) * Math.PI * 2;
+      // Video 1 (00:05-00:06): Glowing 3D Figure-8 Infinity Ribbon + Gold Stardust
+      if (i < 820) {
+        const t = (i / 820) * Math.PI * 2;
         const denom = 1 + Math.sin(t) * Math.sin(t);
-        const spread = (((i * 17) % 11) - 5) * 0.032;
-        const x = (1.48 * Math.cos(t)) / denom;
-        const y = (1.48 * Math.sin(t) * Math.cos(t)) / denom + spread;
-        const z = Math.sin(t * 2) * 0.45 + spread;
+        const widthOffset = (((i * 19) % 13) - 6) * 0.025;
+        const x = (1.62 * Math.sin(t) * Math.cos(t)) / denom + widthOffset;
+        const y = (1.42 * Math.cos(t)) / denom;
+        const z = Math.sin(t * 2) * 0.52 + widthOffset;
+        const gold = i % 5 === 0;
         pts.push({
           x,
           y,
           z,
-          r: i % 6 === 0 ? 251 : 56,
-          g: i % 6 === 0 ? 191 : 189,
-          b: i % 6 === 0 ? 36 : 248,
+          r: gold ? 251 : 56,
+          g: gold ? 191 : 189,
+          b: gold ? 36 : 248,
         });
       } else {
-        const idx = i - 510;
-        const theta = golden * idx * 6;
-        const y = (idx / 130) * 2.4 - 1.2;
-        const rad = 1.35;
+        const idx = i - 820;
+        const theta = golden * idx * 5;
+        const y = (idx / 300) * 3.0 - 1.5;
+        const rad = 1.2 + ((idx * 13) % 10) * 0.08;
         pts.push({
           x: Math.cos(theta) * rad,
           y,
           z: Math.sin(theta) * rad,
-          r: 224,
-          g: 242,
-          b: 254,
+          r: idx % 2 === 0 ? 251 : 186,
+          g: idx % 2 === 0 ? 191 : 230,
+          b: idx % 2 === 0 ? 36 : 253,
         });
       }
     }
@@ -228,7 +261,7 @@ export default function ParticleMorphCanvas({
 
   useEffect(() => {
     visualRef.current = visual;
-    burstRef.current = 1; // Trigger vortex morph energy burst
+    burstRef.current = 1;
   }, [visual]);
 
   useEffect(() => {
@@ -246,21 +279,18 @@ export default function ParticleMorphCanvas({
     window.addEventListener("resize", resize);
 
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const initial = SCULPTURE_CACHE[visualRef.current];
-    const state = initial.map((p) => ({ ...p }));
+    const state = SCULPTURE_CACHE[visualRef.current].map((p) => ({ ...p }));
 
     let rotY = 0;
-    let rotX = 0.18;
+    let rotX = 0.14;
     let mouseX = 0;
     let mouseY = 0;
     let visible = true;
     let raf = 0;
 
     const onMove = (e: MouseEvent) => {
-      const rect = cv.getBoundingClientRect();
-      if (rect.width === 0 || rect.height === 0) return;
-      mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
-      mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
     };
     window.addEventListener("mousemove", onMove, { passive: true });
 
@@ -274,32 +304,28 @@ export default function ParticleMorphCanvas({
       const h = cv.height;
       ctx.clearRect(0, 0, w, h);
 
-      // Position sculpture centered in the left/center vista on wide screens
-      const isWide = w / dpr >= 1024;
-      const cx = w * (isWide ? 0.31 : 0.5);
-      const cy = h * 0.48;
-      const baseScale = Math.min(w * (isWide ? 0.22 : 0.34), h * 0.32);
+      const cx = w * 0.5;
+      const cy = h * 0.49;
+      const baseScale = Math.min(w * 0.28, h * 0.34);
 
-      // Soft volumetric core nebula behind sculpture
-      const targetSample = SCULPTURE_CACHE[visualRef.current][0];
-      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseScale * 1.65);
-      glow.addColorStop(
-        0,
-        `rgba(${targetSample.r}, ${targetSample.g}, ${targetSample.b}, 0.22)`
-      );
-      glow.addColorStop(0.45, "rgba(59, 130, 246, 0.07)");
+      // Central cosmic nebula glow (Cyan + Violet + Deep Space)
+      const sample = SCULPTURE_CACHE[visualRef.current][0];
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, baseScale * 2.1);
+      glow.addColorStop(0, `rgba(${sample.r}, ${sample.g}, ${sample.b}, 0.24)`);
+      glow.addColorStop(0.38, "rgba(139, 92, 246, 0.11)");
+      glow.addColorStop(0.75, "rgba(0, 217, 255, 0.04)");
       glow.addColorStop(1, "transparent");
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
 
-      burstRef.current *= 0.94;
+      burstRef.current *= 0.93;
       const burst = burstRef.current;
 
       if (!reduce) {
-        rotY += 0.0065 + burst * 0.055;
+        rotY += 0.0055 + burst * 0.065;
       }
-      const targetTiltX = 0.18 + mouseY * 0.25;
-      const targetTiltY = rotY + mouseX * 0.35;
+      const targetTiltX = 0.12 + mouseY * 0.22;
+      const targetTiltY = rotY + mouseX * 0.38;
       rotX += (targetTiltX - rotX) * 0.06;
 
       const cosY = Math.cos(targetTiltY);
@@ -308,45 +334,46 @@ export default function ParticleMorphCanvas({
       const sinX = Math.sin(rotX);
 
       const targets = SCULPTURE_CACHE[visualRef.current];
-      const fov = 3.4;
+      const fov = 3.5;
 
       for (let i = 0; i < COUNT; i++) {
         const s = state[i];
         const t = targets[i];
 
-        // Vortex swirl offset during morph transitions
-        const swirl = burst * 0.42;
-        const tx = t.x * Math.cos(swirl) - t.z * Math.sin(swirl);
-        const tz = t.x * Math.sin(swirl) + t.z * Math.cos(swirl);
+        // Explosive radial shockwave + vortex swirl during morph
+        const expand = 1 + burst * (0.45 + (i % 5) * 0.12);
+        const swirl = burst * 0.55;
+        const tx = (t.x * Math.cos(swirl) - t.z * Math.sin(swirl)) * expand;
+        const ty = t.y * (1 + burst * 0.22);
+        const tz = (t.x * Math.sin(swirl) + t.z * Math.cos(swirl)) * expand;
 
-        const lerp = reduce ? 0.35 : 0.075;
+        const lerp = reduce ? 0.35 : 0.072;
         s.x += (tx - s.x) * lerp;
-        s.y += (t.y - s.y) * lerp;
+        s.y += (ty - s.y) * lerp;
         s.z += (tz - s.z) * lerp;
         s.r += (t.r - s.r) * 0.08;
         s.g += (t.g - s.g) * 0.08;
         s.b += (t.b - s.b) * 0.08;
 
-        // 3D rotation (Y then X)
         const x1 = s.x * cosY - s.z * sinY;
         const z1 = s.x * sinY + s.z * cosY;
         const y2 = s.y * cosX - z1 * sinX;
         const z2 = s.y * sinX + z1 * cosX;
 
-        const depth = fov / (fov + z2 + 1.8);
+        const depth = fov / (fov + z2 + 1.85);
         const sx = cx + x1 * baseScale * depth;
         const sy = cy + y2 * baseScale * depth;
 
-        const alpha = Math.max(0.12, Math.min(0.95, (depth - 0.42) * 1.8));
-        const size = Math.max(1.1, depth * 2.5) * dpr;
+        const alpha = Math.max(0.14, Math.min(0.96, (depth - 0.38) * 1.85));
+        const size = Math.max(1.0, depth * 2.35) * dpr;
 
         const rr = Math.round(s.r);
         const gg = Math.round(s.g);
         const bb = Math.round(s.b);
 
-        if (depth > 0.72 && i % 4 === 0) {
-          ctx.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${alpha * 0.22})`;
-          ctx.fillRect(sx - size * 1.2, sy - size * 1.2, size * 3.4, size * 3.4);
+        if (depth > 0.7 && i % 5 === 0) {
+          ctx.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${alpha * 0.24})`;
+          ctx.fillRect(sx - size * 1.3, sy - size * 1.3, size * 3.6, size * 3.6);
         }
         ctx.fillStyle = `rgba(${rr}, ${gg}, ${bb}, ${alpha})`;
         ctx.fillRect(sx, sy, size, size);
