@@ -87,12 +87,11 @@ export const fallbackProjects: Project[] = [
     tech: ["PHP", "MySQL", "SCSS", "Docker", "Leaflet.js"],
     category: "ecommerce",
     platform: "Render Cloud",
-    status: "DEPLOYED",
+    status: "LIVE",
     accent: "#3B82F6",
     visual: "techgear",
     github: `${gh}/TechGear-Ecommerce-Web`,
-    // Replace with public .onrender.com URL (e.g. https://techgear-web-xxxx.onrender.com)
-    demo: undefined,
+    demo: "https://techgear-web-iabv.onrender.com/",
   },
   {
     id: "plant-ecommerce-website",
